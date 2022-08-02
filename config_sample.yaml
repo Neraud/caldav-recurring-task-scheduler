@@ -1,0 +1,36 @@
+config:
+  default:
+    url: http://localhost:8080/remote.php/dav/
+    #ssl_verify_cert: True
+    #ssl_cert: None
+    clone_children: True
+    detach_from_parent: False
+    clone_summary_suffix: " (CLONED)"
+    schedules:
+      #- category: "3-days"
+      #  type: regular
+      #  unit: days
+      #  value: 3
+      - category: "weekly"
+        type: regular
+        unit: weeks
+        value: 1
+      #- category: "monthly"
+      #  type: regular
+      #  unit: months
+      #  value: 1
+      #- category: "first-monday"
+      #  type: monthday
+      #  day: "MO"
+      #  n: 1
+      #- category: "second-tuesday"
+      #  type: monthday
+      #  day: "TU"
+      #  n: 2
+      #- category: "last-monday"
+      #  type: monthday
+      #  day: "MO"
+      #  n: -1
+  users:
+  - name: some_username
+    password: some_password
