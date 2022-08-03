@@ -4,7 +4,7 @@ from caldav_client.task import TaskWrapper
 from caldav import Calendar, DAVClient
 from caldav.elements import dav, cdav
 from caldav.objects import Todo
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 class CalDavClient():
 
     def __init__(self, u: UserConfig):
+        self.user_config = u
         self.client = DAVClient(
             url=u.url,
             username=u.name, password=u.password,
@@ -36,8 +37,10 @@ class CalDavClient():
 
         # Add filter on dtstart
         if start and end:
-            dts_filter = cdav.PropFilter(
-                'DTSTART') + cdav.TimeRange(start, end)
+            start = self._add_timezone(start)
+            end = self._add_timezone(end)
+            dts_filter = cdav.PropFilter('DTSTART') + \
+                cdav.TimeRange(start, end)
             query += dts_filter
 
         if category:
@@ -69,3 +72,8 @@ class CalDavClient():
 
         logger.debug('%d tasks found', len(tasks))
         return tasks
+
+    def _add_timezone(self, dt: datetime) -> datetime:
+        if not dt.tzinfo:
+            dt = self.user_config.timezone.localize(dt)
+        return dt

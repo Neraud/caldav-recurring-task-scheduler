@@ -25,6 +25,7 @@ config:
     clone_children: True
     detach_from_parent: False
     clone_summary_suffix: ""
+    timezone: "UTC"
     schedules: []
 ```
 
@@ -32,8 +33,18 @@ config:
 * `config.default.ssl_verify_cert` and `config.default.ssl_cert`: to configure SSL if required
 * `config.default.clone_children` : to recursively clone subtasks of a matching task
 * `config.default.detach_from_parent` : to detach a matching task from its parent
-* `config.default.clone_summary_suffix` : to add a suffix to the summary of cloned tasks (for example ` (CLONED)`). Mainly used to debug purposes.
+* `config.default.clone_summary_suffix` : to add a suffix to the summary of cloned tasks (for example ` (CLONED)`). Mainly used to debug purposes
+* `config.default.timezone` : the timezone used by the tasks
 * `config.default.schedules` : a list of default schedules
+
+### Note about timezone
+
+The Nextcloud Tasks application doesn't support timezone. But the Python CalDAV client does.
+
+If we apply a filter using a local timezone, the client will properly convert it to UTC.
+For example, if we use 4pm UTC+2, the client will send 2pm UTC, and Nextcloud will think it means 2pm UTC+2.
+
+The timezone must be forced to `UTC` to avoid issues.
 
 ## Schedules
 

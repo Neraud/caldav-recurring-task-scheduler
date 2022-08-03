@@ -1,5 +1,7 @@
 import yaml
 import logging
+from datetime import tzinfo
+import pytz
 from typing import Dict
 from schedule.base import Schedule
 from schedule.regular import RegularSchedule
@@ -18,6 +20,7 @@ class UserConfig:
     clone_children = True
     detach_from_parent = False
     clone_summary_suffix = ""
+    timezone: tzinfo = pytz.utc
 
     schedules: list[Schedule] = []
 
@@ -51,6 +54,8 @@ class ConfigManager:
                     user, conf, 'detach_from_parent', False)
                 u.clone_summary_suffix = self._get_user_conf(
                     user, conf, 'clone_summary_suffix', "")
+                u.timezone = pytz.timezone(self._get_user_conf(
+                    user, conf, 'timezone', "UTC"))
 
                 schedules = []
                 for s in self._get_user_conf(user, conf, 'schedules'):
