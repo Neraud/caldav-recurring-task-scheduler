@@ -49,6 +49,7 @@ class CalDavClient():
             query += cdav.PropFilter('RELATED-TO') + \
                 cdav.TextMatch(parent_uuid)
 
+        logger.debug('Search query : %s', root)
         res = c.search(root, comp_class=Todo)
         tasks = [TaskWrapper(t) for t in res]
 

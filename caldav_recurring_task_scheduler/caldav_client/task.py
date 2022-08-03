@@ -32,8 +32,10 @@ class TaskWrapper():
 
     def _increase_instance_date_attribute(self, name: str, d: timedelta):
         if hasattr(self.event.instance.vtodo, name):
-            logger.debug(' - increasing "%s" attribute by %s', name, d)
-            getattr(self.event.instance.vtodo, name).value += d
+            new_value = getattr(self.event.instance.vtodo, name).value + d
+            logger.debug(' - increasing "%s" attribute by %s to %s',
+                         name, d, new_value)
+            getattr(self.event.instance.vtodo, name).value = new_value
 
     def __repr__(self) -> str:
         return f"Task '{self.get_instance_attribute('summary')}'"
