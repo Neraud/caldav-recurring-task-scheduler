@@ -73,6 +73,63 @@ class CalDavClient():
         logger.debug('%d tasks found', len(tasks))
         return tasks
 
+    def search_clone(self, c: Calendar, clone: TaskWrapper) -> TaskWrapper:
+        logger.debug('Checking if clone "%s" already exists', clone)
+
+        # Fetch all calendar data
+        prop = dav.Prop() + cdav.CalendarData()
+
+        query = cdav.CompFilter("VTODO")
+        vcalendar = cdav.CompFilter("VCALENDAR") + query
+        filter = cdav.Filter() + vcalendar
+        root = cdav.CalendarQuery() + [prop, filter]
+
+        # Add filter on dtstart
+        dtstart = clone.get_instance_attribute('dtstart')
+        if dtstart:
+            dtstart = self._add_timezone(dtstart)
+            start = dtstart - timedelta(minutes=1)
+            end = dtstart + timedelta(minutes=1)
+            dts_filter = cdav.PropFilter('DTSTART') + \
+                cdav.TimeRange(start, end)
+            query += dts_filter
+
+        categories = clone.get_instance_attribute('categories', [])
+        for cat in categories:
+            # Add filter on category
+            query += cdav.PropFilter('CATEGORIES') + cdav.TextMatch(cat)
+
+        query += cdav.PropFilter('SUMMARY') + \
+            cdav.TextMatch(clone.get_instance_attribute('summary'))
+
+        logger.debug('Search query : %s', root)
+        res = c.search(root, comp_class=Todo)
+        tasks = []
+        for r in res:
+            t = TaskWrapper(r)
+
+            # The TextMatch filter we use is basically a "contains"
+            # So if we search for 'weekly', we can get task from 'foo-weekly-bar'
+            tcat = sorted(t.get_instance_attribute('categories', []))
+            ccat = sorted(clone.get_instance_attribute('categories', []))
+            if tcat != ccat:
+                continue
+
+            if t.get_instance_attribute('summary') != clone.get_instance_attribute('summary'):
+                continue
+
+            tasks.append(t)
+
+        if len(tasks) == 0:
+            logger.debug('Clone not found')
+            return None
+        elif len(tasks) == 1:
+            logger.debug('Clone found : %s', tasks[0])
+            return tasks[0]
+        else:
+            logger.debug('Multiple clones found ! %s', tasks)
+            return tasks[0]
+
     def _add_timezone(self, dt: datetime) -> datetime:
         if not dt.tzinfo:
             dt = self.user_config.timezone.localize(dt)

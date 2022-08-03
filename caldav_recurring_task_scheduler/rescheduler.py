@@ -68,7 +68,7 @@ class UserRescheduler:
 
         for t in tasks:
             logger.info('- cloning task "%s"', t.get_summary())
-            clone = self._clone_task(s, t)
+            clone = self._clone_task(s, c, t)
             if self.user_config.clone_children:
                 self._clone_children_recursively(s, c, t, clone)
 
@@ -81,10 +81,10 @@ class UserRescheduler:
         for t in subtasks:
             logger.info('- cloning task "%s" (under %s)',
                         t.get_summary(), new_parent.get_summary())
-            clone = self._clone_task(s, t, new_parent)
+            clone = self._clone_task(s, c, t, new_parent)
             self._clone_children_recursively(s, c, t, clone)
 
-    def _clone_task(self, s: Schedule, t: TaskWrapper, new_parent: TaskWrapper = None) -> TaskWrapper:
+    def _clone_task(self, s: Schedule, c: Calendar, t: TaskWrapper, new_parent: TaskWrapper = None) -> TaskWrapper:
         logger.debug('Task to clone : %s', t.event.instance)
         clone = TaskWrapper(t.event.copy())
 
@@ -119,14 +119,19 @@ class UserRescheduler:
             # Detach from parent
             clone._delete_instance_attribute('related_to')
 
-        if not self.dry_run:
-            # Calling save() once generates a new uid, but on the server side the task has a new uid ...
-            clone.event.save()
-            # Calling save() a second time properly saves the uid
-            clone.event.save()
-            logger.debug('Task cloned : %s', clone.event.instance)
+        existing_clone = self.client.search_clone(c, clone)
+        if existing_clone:
+            logger.info('Clone already exists, ignoring our new copy')
+            return existing_clone
         else:
-            logger.debug('(DRY RUN) Task cloned but not saved : %s',
-                         clone.event.instance)
+            if not self.dry_run:
+                # Calling save() once generates a new uid, but on the server side the task has a new uid ...
+                clone.event.save()
+                # Calling save() a second time properly saves the uid
+                clone.event.save()
+                logger.debug('Task cloned : %s', clone.event.instance)
+            else:
+                logger.debug('(DRY RUN) Task cloned but not saved : %s',
+                             clone.event.instance)
 
-        return clone
+            return clone

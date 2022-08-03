@@ -19,7 +19,8 @@ For all configured users, it :
 * looks for configured schedules
 * filters schedules to keep only those applicable today
 * look for past tasks matching applicable schedules (date and category)
-* clone those tasks
+* look for an existing clone of the past task
+* clone those tasks if it's not cloned yet
 
 ## Schedules
 
@@ -167,11 +168,13 @@ For example, if you have a weekly task on still ongoing from last week, a new on
 The logic is based on existing tasks matching a schedule.
 If you delete a recurring task (after it has been completed for example), it won't be scheduled again.
 
-### Not idempotent
+### Stateless
 
-The application doesn't check if a recurring task has already been cloned.
+The application doesn't remember when it's been run, or which tasks have already been cloned.
 
-If you run the applications multiple times for the same date, matching tasks will be cloned multiple times.
+If the application is not run for some time, the missing days won't be automatically handled. In this case, you have to manually run the appplication with the `run-date` parameter.
+
+To avoid duplicated clones if the application is run multiple times, it tries check if a recurring task has already been cloned. This check is based on `DTSTART`, `CATEGORIES` and `SUMMARY`.
 
 ### Task created the day it starts
 
