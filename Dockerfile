@@ -9,6 +9,7 @@ ENV DRY_RUN="N"
 RUN adduser app -D
 
 ADD --chown=app:app . /opt/caldav_recurring_task_scheduler
+RUN chmod +x /opt/caldav_recurring_task_scheduler/entrypoint.sh
 
 USER app
 
