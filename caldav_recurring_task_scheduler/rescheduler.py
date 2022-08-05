@@ -1,7 +1,7 @@
 import logging
 
 from datetime import date, datetime
-from config import ConfigManager, UserConfig
+from config import ConfigManager
 from caldav import Calendar
 from caldav_client.client import CalDavClient
 from caldav_client.task import TaskWrapper
@@ -23,7 +23,7 @@ class Rescheduler:
             self.run_for_user(n)
 
     def run_for_user(self, name: str):
-        logger.info("Running for user : %s", name)
+        logger.info("Running for user %s and date %s", name, self.run_date)
         r = UserRescheduler(self.config, self.run_date, name, self.dry_run)
         r.run()
 
