@@ -98,6 +98,12 @@ class CalDavClient():
         for cat in categories:
             # Add filter on category
             query += cdav.PropFilter('CATEGORIES') + cdav.TextMatch(cat)
+        
+        parent_uuid = clone.get_instance_attribute('related-to', None)
+        if parent_uuid:
+            # Add filter on parent
+            query += cdav.PropFilter('RELATED-TO') + \
+                cdav.TextMatch(parent_uuid)
 
         query += cdav.PropFilter('SUMMARY') + \
             cdav.TextMatch(clone.get_instance_attribute('summary'))
