@@ -24,14 +24,14 @@ setup(
     long_description=read("README.md"),
     packages=find_packages(exclude=('tests', )),
     install_requires=[
-        'caldav==0.9.1',
-        'PyYAML==6.0',
-        'python-dateutil==2.8.2',
+        'caldav==1.3.9',
+        'PyYAML==6.0.2',
+        'python-dateutil==2.9.0.post0',
     ],
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.13',
     ],
 )

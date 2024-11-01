@@ -1,4 +1,4 @@
-FROM python:3.10.5-alpine3.16
+FROM python:3.13.0-alpine3.20
 
 ENV CONFIG_PATH=/data/config.yaml
 ENV LOG_LEVEL=INFO
